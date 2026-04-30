@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1",
+    "token": "sprint-1-token",
+    "isOpen": true,
+    "isVisible": true,
+    "quota": {
+      "regularBottle": 100,
+      "largeBottle": 50,
+      "regularCup": 200,
+      "largeCup": 100
+    },
+    "createdAt": "2023-01-01T00:00:00Z",
+    "dueDate": "2023-01-15T00:00:00Z"
+  },
+  {
+    "id": "2",
+    "token": "sprint-2-token",
+    "isOpen": false,
+    "isVisible": true,
+    "quota": {
+      "regularBottle": 150,
+      "largeBottle": 75,
+      "regularCup": 300,
+      "largeCup": 150
+    },
+    "createdAt": "2023-01-16T00:00:00Z",
+    "dueDate": "2023-01-31T00:00:00Z"
+  }
+]

@@ -1,0 +1,8 @@
+CREATE TABLE sprints (
+  id VARCHAR(50) PRIMARY KEY,
+  token VARCHAR(50) UNIQUE,
+  created_at DATETIME,
+  due_date DATETIME NULL,
+  is_open BOOLEAN DEFAULT FALSE,
+  is_visible BOOLEAN DEFAULT TRUE
+);
