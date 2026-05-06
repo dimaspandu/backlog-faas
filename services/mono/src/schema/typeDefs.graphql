@@ -1,0 +1,42 @@
+type Sprint {
+  id: ID!
+  token: String!
+  isOpen: Boolean!
+  isVisible: Boolean!
+  createdAt: String!
+  dueDate: String!
+}
+
+type Product {
+  id: ID!
+  name: String!
+  description: String!
+  image: String!
+  createdAt: String!
+}
+
+type VariantAttribute {
+  name: String!
+  value: String!
+}
+
+type ProductVariant {
+  attributes: [VariantAttribute!]!
+}
+
+type SprintProduct {
+  id: ID!
+  sprintId: ID!
+  product: Product!
+  variant: ProductVariant!
+  price: Float!
+  discount: Float!
+}
+
+type Query {
+  hello: String,
+  sprints: [Sprint!]!,
+  sprint(token: String!): Sprint,
+  products: [Product!]!,
+  sprintProducts: [SprintProduct!]!
+}

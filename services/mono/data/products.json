@@ -1,0 +1,58 @@
+[
+  {
+    "id": "1",
+    "name": "Tiramisu Aren Latte",
+    "description": "Espresso + Latte + Tiramisu + Palm Sugar",
+    "image": "https://example.com/tiramisu-aren-latte.jpg",
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "2",
+    "name": "Hazel Aren Latte",
+    "description": "Espresso + Latte + Hazelnut + Palm Sugar",
+    "image": "https://example.com/hazel-aren-latte.jpg",
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "3",
+    "name": "Hazel Choco Latte",
+    "description": "Dark Cocoa + Latte + Hazelnut",
+    "image": "https://example.com/hazel-choco-latte.jpg",
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "4",
+    "name": "Aren Latte",
+    "description": "Espresso + Latte + Palm Sugar",
+    "image": "https://example.com/aren-latte.jpg",
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "5",
+    "name": "Tiramisu Latte",
+    "description": "Espresso + Latte + Tiramisu",
+    "image": "https://example.com/tiramisu-latte.jpg",
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "6",
+    "name": "Hazel Latte",
+    "description": "Espresso + Latte + Hazelnut",
+    "image": "https://example.com/hazel-latte.jpg",
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "7",
+    "name": "Americano",
+    "description": "Espresso + Water + Palm Sugar",
+    "image": "https://example.com/americano.jpg",
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "8",
+    "name": "Matcha Latte",
+    "description": "Matcha Premium + Latte",
+    "image": "https://example.com/matcha-latte.jpg",
+    "createdAt": "2023-01-01T00:00:00Z"
+  }
+]

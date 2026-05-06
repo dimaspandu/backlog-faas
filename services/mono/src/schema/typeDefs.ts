@@ -1,23 +1,3 @@
-export const typeDefs = /* GraphQL */ `
-  type Quota {
-    regularBottle: Int!
-    largeBottle: Int!
-    regularCup: Int!
-    largeCup: Int!
-  }
+import { readFileSync } from 'node:fs';
 
-  type Sprint {
-    id: ID!
-    token: String!
-    isOpen: Boolean!
-    isVisible: Boolean!
-    quota: Quota!
-    createdAt: String!
-    dueDate: String!
-  }
-
-  type Query {
-    hello: String,
-    sprints: [Sprint!]!
-  }
-`;
+export const typeDefs = readFileSync('./src/schema/typeDefs.graphql', 'utf-8');
