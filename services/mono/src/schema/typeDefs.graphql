@@ -38,5 +38,5 @@ type Query {
   sprints: [Sprint!]!,
   sprint(token: String!): Sprint,
   products: [Product!]!,
-  sprintProducts: [SprintProduct!]!
+  sprintProducts(token: String!): [SprintProduct!]!
 }

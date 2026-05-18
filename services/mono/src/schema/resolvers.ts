@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 const products = JSON.parse(readFileSync('./data/products.json', 'utf-8'));
-const sprintProducts = JSON.parse(readFileSync('./data/sprint-products.json', 'utf-8'));
+const sprintProductsData = JSON.parse(readFileSync('./data/sprint-products.json', 'utf-8'));
 const sprints = JSON.parse(readFileSync('./data/sprints.json', 'utf-8'));
 
 export const resolvers = {
@@ -18,9 +18,16 @@ export const resolvers = {
       return sprints.find((s: any) => s.id === id && s.isVisible && s.isOpen);
     },
     products: () => products,
-    sprintProducts: () => sprintProducts.map((sp: any) => ({
-      ...sp,
-      product: products.find((p: any) => p.id === sp.productId),
-    })),
+    sprintProducts: (_: any, { token }: { token: string }) => {
+      const sprintId = Buffer.from(token, 'base64').toString('ascii');
+      return sprintProductsData
+        .filter((sp: any) => sp.sprintId === sprintId)
+        .map((sp: any) => {
+          return {
+            ...sp,
+            product: products.find((p: any) => p.id === sp.productId),
+          };
+        })
+    },
   },
 };
