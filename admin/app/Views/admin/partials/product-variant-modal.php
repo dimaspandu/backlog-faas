@@ -12,8 +12,8 @@
       <input type="hidden" id="product-variant-id">
 
       <div class="form-group">
-        <label class="form-group__label">SKU</label>
-        <input class="form-group__input" name="sku" id="product-variant-sku">
+        <label class="form-group__label">SKU *</label>
+        <input class="form-group__input" name="sku" id="product-variant-sku" required>
       </div>
 
       <div class="form-group">

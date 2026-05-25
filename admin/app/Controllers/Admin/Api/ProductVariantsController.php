@@ -139,6 +139,11 @@ final class ProductVariantsController
 
   private function validate(array $input): array|JsonResponse
   {
+    $sku = trim($input['sku'] ?? '');
+    if ($sku === '') {
+      return $this->validationError('Variant SKU is required.');
+    }
+
     $name = trim($input['name'] ?? '');
     if ($name === '') {
       return $this->validationError('Variant name is required.');
@@ -151,7 +156,7 @@ final class ProductVariantsController
     }
 
     return [
-      'sku' => trim($input['sku'] ?? '') ?: null,
+      'sku' => $sku,
       'name' => $name,
       'attributes' => $attributes,
     ];
