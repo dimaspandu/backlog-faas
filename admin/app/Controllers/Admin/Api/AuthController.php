@@ -21,10 +21,10 @@ final class AuthController
     $password = $input['password'] ?? $_POST['password'] ?? '';
 
     if ($username === '' || $password === '') {
-      return new JsonResponse([
+      return (new JsonResponse([
         'success' => false,
         'error'   => 'Username and password are required.'
-      ], 400);
+      ]))->status(400);
     }
 
     try {
@@ -36,25 +36,18 @@ final class AuthController
         ]);
       }
 
-      return new JsonResponse([
+      return (new JsonResponse([
         'success' => false,
         'error'   => 'Invalid username or password.'
-      ], 401);
+      ]))->status(401);
 
     } catch (\Throwable $e) {
-      // Never return HTML 500 for API endpoints
-      if (env('APP_DEBUG', false)) {
-        return new JsonResponse([
-          'success' => false,
-          'error'   => 'Server error: ' . $e->getMessage(),
-          'trace'   => $e->getTraceAsString()
-        ], 500);
-      }
+      error_log((string) $e);
 
-      return new JsonResponse([
+      return (new JsonResponse([
         'success' => false,
-        'error'   => 'Internal server error. Check logs or database connection.'
-      ], 500);
+        'error'   => 'Internal server error.'
+      ]))->status(500);
     }
   }
 

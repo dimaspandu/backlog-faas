@@ -25,8 +25,9 @@ final class SprintsController
       $params = [];
 
       if ($search !== '') {
-        $where .= ' AND (name LIKE :search OR token LIKE :search)';
-        $params['search'] = '%' . $search . '%';
+        $where .= ' AND (name LIKE :search_name OR token LIKE :search_token)';
+        $params['search_name'] = '%' . $search . '%';
+        $params['search_token'] = '%' . $search . '%';
       }
 
       // Get total count
@@ -231,14 +232,7 @@ final class SprintsController
 
   private function errorResponse(\Throwable $e): JsonResponse
   {
-    if (env('APP_DEBUG', false)) {
-      $response = new JsonResponse([
-        'success' => false,
-        'error'   => $e->getMessage(),
-        'trace'   => $e->getTraceAsString()
-      ]);
-      return $response->status(500);
-    }
+    error_log((string) $e);
 
     $response = new JsonResponse([
       'success' => false,
