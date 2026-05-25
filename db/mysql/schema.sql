@@ -38,9 +38,11 @@ CREATE TABLE `product_variants` (
   `sku` VARCHAR(128) NULL,
   `name` VARCHAR(255) NULL,
   `attributes` JSON DEFAULT NULL,
+  `status` ENUM('ACTIVE','DELETED') NOT NULL DEFAULT 'ACTIVE',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX (`product_id`),
+  INDEX (`status`),
   CONSTRAINT `fk_product_variants_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -57,12 +59,14 @@ CREATE TABLE `sprint_products` (
   `reserved_quantity` INT UNSIGNED DEFAULT 0,
   `stock_sold` INT UNSIGNED DEFAULT 0,
   `variant` JSON DEFAULT NULL,
+  `status` ENUM('ACTIVE','INACTIVE','DELETED') NOT NULL DEFAULT 'ACTIVE',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY `u_sprint_product_variant` (`sprint_id`,`product_id`,`sku`),
   INDEX (`sprint_id`),
   INDEX (`product_variant_id`),
   INDEX `idx_product_id` (`product_id`),
+  INDEX (`status`),
   CONSTRAINT `fk_sprint_products_sprint` FOREIGN KEY (`sprint_id`) REFERENCES `sprints` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_sprint_products_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_sprint_products_variant` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variants` (`id`) ON DELETE SET NULL

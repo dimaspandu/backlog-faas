@@ -11,6 +11,7 @@
     <a href="/admin" class="admin-nav__link<?= (($_SERVER['REQUEST_URI'] ?? '') === '/admin' ? ' admin-nav__link--active' : '') ?>">Dashboard</a>
     <a href="/admin/sprints" class="admin-nav__link<?= str_contains($_SERVER['REQUEST_URI'] ?? '', '/sprints') ? ' admin-nav__link--active' : '' ?>">Sprints</a>
     <a href="/admin/products" class="admin-nav__link<?= str_contains($_SERVER['REQUEST_URI'] ?? '', '/products') ? ' admin-nav__link--active' : '' ?>">Products</a>
+    <a href="/admin/sprint-products" class="admin-nav__link<?= str_contains($_SERVER['REQUEST_URI'] ?? '', '/sprint-products') ? ' admin-nav__link--active' : '' ?>">Sprint Products</a>
   </div>
   <div class="admin-nav__actions">
     <button type="button" onclick="logoutAdmin()">Logout</button>

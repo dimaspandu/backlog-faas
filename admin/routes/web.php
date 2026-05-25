@@ -63,6 +63,11 @@ $router->get('/admin/sprint-products', function () {
   (new \App\Controllers\Admin\SprintProductsController())->index();
 });
 
+$router->get('/admin/sprint-products/:id', function (array $params) {
+  AuthMiddleware::handle();
+  (new \App\Controllers\Admin\SprintProductsController())->show($params);
+});
+
 /*
 |-------------------------------------------------
 | Legacy / root redirect for convenience

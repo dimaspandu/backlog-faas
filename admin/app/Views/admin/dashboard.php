@@ -19,9 +19,9 @@
     <small>Manage the product catalog</small>
   </a>
 
-  <a href="/admin/sprint-products" class="dashboard-cards__card dashboard-cards__card--disabled">
+  <a href="/admin/sprint-products" class="dashboard-cards__card">
     <strong>🔗 Sprint Products</strong><br>
-    <small>Link products to sprints with pricing (coming soon)</small>
+    <small>Manage sprint availability, pricing and stock</small>
   </a>
 </div>
 
