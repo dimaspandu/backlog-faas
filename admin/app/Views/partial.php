@@ -1,1 +1,0 @@
-<p>This content is rendered from a view file.</p>
