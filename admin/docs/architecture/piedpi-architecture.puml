@@ -1,0 +1,79 @@
+@startuml
+!theme plain
+skinparam linetype ortho
+skinparam rectangle {
+    BackgroundColor<<entry>> LightYellow
+    BackgroundColor<<middleware>> AliceBlue
+    RoundCorner 8
+    BorderColor #555555
+    FontSize 12
+}
+skinparam arrow {
+    Color #444444
+    Thickness 1.5
+}
+skinparam note {
+    BackgroundColor #FFFFCC
+    BorderColor #999999
+    FontSize 11
+}
+skinparam title {
+    FontSize 16
+    FontColor #222222
+}
+
+title Piedpi Architecture - Request Flow
+
+actor "Client" as Client
+
+rectangle "Entry Points" as EntryGroup <<entry>> {
+    rectangle "public/index.php\n(Local Development / VPS)" as Public
+    rectangle "public_html/index.php\n(Shared Hosting)" as PublicHtml
+}
+
+rectangle "Bootstrap" as Bootstrap
+rectangle "Router\n(Trie-based matching)" as Router
+
+rectangle "Middleware\n(Explicit per-route)" as Middleware <<middleware>>
+rectangle "Controller" as Controller
+rectangle "Database Layer" as DB
+rectangle "Renderer" as Renderer
+rectangle "Widget System" as Widget
+rectangle "Response\n(HTML or JSON)" as Response
+
+rectangle "Error Handling" as ErrorGroup {
+    rectangle "ErrorHandler\n(404 / 500)" as ErrorHandler
+}
+
+Client --> Public
+Client --> PublicHtml
+
+Public --> Bootstrap
+PublicHtml --> Bootstrap
+
+Bootstrap --> Router
+
+Router --> Middleware : Route matched
+Middleware --> Controller
+
+Controller --> DB
+Controller --> Renderer
+Renderer --> Widget
+Renderer --> Response
+
+Response --> Client
+
+Router .down.> ErrorHandler : 404 / Exception
+ErrorHandler --> Response
+
+note right of Middleware
+  Middleware is invoked explicitly,
+  either in route definitions or
+  inside controller methods.
+
+  Current examples:
+  - AuthMiddleware (web routes)
+  - CsrfMiddleware (API mutations)
+end note
+
+@enduml

@@ -1,0 +1,8 @@
+# Environment
+.env
+
+# Runtime logs
+/storage/logs/*
+
+# View / template cache
+/storage/cache/*

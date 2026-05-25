@@ -1,50 +1,30 @@
 [
   {
-    "timestamp": "2026-05-03T04:40:49.166Z",
-    "sprintToken": "c1d2e3f4g5",
-    "orderId": "ORD-1777783247532-99",
-    "customerName": "penglaris",
-    "contact": "812****626",
-    "itemName": "Aren Latte",
-    "size": "Large",
-    "qty": 1,
-    "subtotal": 20000,
-    "total": 20000,
+    "sprintId": 1,
+    "orderId": "ORD-1777811138153-211",
+    "customerId": 3,
+    "items": [
+      {
+        "sprintProductId": 1,
+        "variant": {
+        "attributes": [
+          {
+            "name": "container",
+            "value": "bottle"
+          },
+          {
+            "name": "size",
+            "value": "large"
+          }
+        ]
+      },
+        "price": 21000.0,
+        "discount": 0.0
+      }
+    ],
+    "total": 40000,
     "notes": "",
-    "options": "sugar=none",
     "requestStatus": 0,
     "paymentStatus": 0
-  },
-  {
-    "timestamp": "2026-05-03T12:25:41.783Z",
-    "sprintToken": "c1d2e3f4g5",
-    "orderId": "ORD-1777811138153-211",
-    "customerName": "Dedi Sidauruk",
-    "contact": "857****207",
-    "itemName": "Tiramisu Aren Latte",
-    "size": "Large",
-    "qty": 1,
-    "subtotal": 21000,
-    "total": 38950,
-    "notes": "backlog suka sering telat kepegang, karena banyak kerjaan dadakan",
-    "options": "sugar=less",
-    "requestStatus": 0,
-    "paymentStatus": 1
-  },
-  {
-    "timestamp": "2026-05-03T12:25:41.783Z",
-    "sprintToken": "c1d2e3f4g5",
-    "orderId": "ORD-1777811138153-211",
-    "customerName": "Dedi Sidauruk",
-    "contact": "857****207",
-    "itemName": "Aren Latte",
-    "size": "Large",
-    "qty": 1,
-    "subtotal": 20000,
-    "total": 38950,
-    "notes": "backlog suka sering telat kepegang, karena banyak kerjaan dadakan",
-    "options": "sugar=less",
-    "requestStatus": 0,
-    "paymentStatus": 1
   }
 ]

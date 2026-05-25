@@ -1,0 +1,142 @@
+CREATE DATABASE IF NOT EXISTS `backlog_faas` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `backlog_faas`;
+
+CREATE TABLE `products` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `sku` VARCHAR(128) NOT NULL UNIQUE,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT,
+  `images` JSON DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `sprints` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `token` VARCHAR(32) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT,
+  `start_at` DATETIME NULL,
+  `end_at` DATETIME NULL,
+  `is_visible` TINYINT(1) NOT NULL DEFAULT 1,
+  `is_open` TINYINT(1) NOT NULL DEFAULT 0,
+  `status` ENUM('DRAFT','ACTIVE','PAUSED','CLOSED','DELETED') NOT NULL DEFAULT 'DRAFT',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `ux_sprints_token` (`token`),
+  INDEX (`is_visible`),
+  INDEX (`is_open`),
+  INDEX (`status`),
+  INDEX (`start_at`,`end_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `product_variants` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `product_id` BIGINT UNSIGNED NOT NULL,
+  `sku` VARCHAR(128) NULL,
+  `name` VARCHAR(255) NULL,
+  `attributes` JSON DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (`product_id`),
+  CONSTRAINT `fk_product_variants_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `sprint_products` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `sprint_id` BIGINT UNSIGNED NOT NULL,
+  `product_id` BIGINT UNSIGNED NOT NULL,
+  `product_variant_id` BIGINT UNSIGNED DEFAULT NULL,
+  `sku` VARCHAR(128) NULL,
+  `price_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `list_price_cents` BIGINT UNSIGNED DEFAULT 0,
+  `discount_cents` BIGINT UNSIGNED DEFAULT 0,
+  `stock` INT UNSIGNED DEFAULT 0,
+  `reserved_quantity` INT UNSIGNED DEFAULT 0,
+  `stock_sold` INT UNSIGNED DEFAULT 0,
+  `variant` JSON DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `u_sprint_product_variant` (`sprint_id`,`product_id`,`sku`),
+  INDEX (`sprint_id`),
+  INDEX (`product_variant_id`),
+  INDEX `idx_product_id` (`product_id`),
+  CONSTRAINT `fk_sprint_products_sprint` FOREIGN KEY (`sprint_id`) REFERENCES `sprints` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_sprint_products_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_sprint_products_variant` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variants` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `customers` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `external_id` VARCHAR(128) DEFAULT NULL,
+  `name` VARCHAR(255) DEFAULT NULL,
+  `contact` VARCHAR(100) DEFAULT NULL,
+  `email` VARCHAR(255) DEFAULT NULL,
+  `password_hash` VARCHAR(255) DEFAULT NULL,
+  `metadata` JSON DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `ux_customers_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `sprint_contracts` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `order_id` VARCHAR(128) NOT NULL UNIQUE,
+  `sprint_id` BIGINT UNSIGNED NOT NULL,
+  `customer_id` BIGINT UNSIGNED NOT NULL,
+  `total_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `notes` TEXT,
+  `request_status` ENUM('PENDING','PROCESSING','FULFILLED','CANCELLED') NOT NULL DEFAULT 'PENDING',
+  `payment_status` ENUM('UNPAID','PAID','REFUNDED') NOT NULL DEFAULT 'UNPAID',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (`sprint_id`),
+  INDEX (`customer_id`),
+  INDEX (`request_status`),
+  CONSTRAINT `fk_contracts_sprint` FOREIGN KEY (`sprint_id`) REFERENCES `sprints` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_contracts_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `sprint_contract_items` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `contract_id` BIGINT UNSIGNED NOT NULL,
+  `sprint_product_id` BIGINT UNSIGNED NOT NULL,
+  `product_id` BIGINT UNSIGNED NOT NULL,
+  `quantity` INT UNSIGNED NOT NULL DEFAULT 1,
+  `price_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `discount_cents` BIGINT UNSIGNED DEFAULT 0,
+  `subtotal_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `variant` JSON DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (`contract_id`),
+  INDEX `idx_sprint_product_id` (`sprint_product_id`),
+  CONSTRAINT `fk_items_contract` FOREIGN KEY (`contract_id`) REFERENCES `sprint_contracts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_items_sprint_product` FOREIGN KEY (`sprint_product_id`) REFERENCES `sprint_products` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_items_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `migrations` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(255) NOT NULL,
+  `applied_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `admin_users` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `username` VARCHAR(64) NOT NULL UNIQUE,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DELIMITER $$
+CREATE TRIGGER `trg_sprints_set_token`
+BEFORE INSERT ON `sprints`
+FOR EACH ROW
+BEGIN
+  IF NEW.token IS NULL OR NEW.token = '' THEN
+    SET NEW.token = REPLACE(UUID(),'-','');
+  END IF;
+END$$
+DELIMITER ;

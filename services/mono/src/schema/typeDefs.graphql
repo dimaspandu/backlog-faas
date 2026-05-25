@@ -1,17 +1,22 @@
 type Sprint {
   id: ID!
   token: String!
+  name: String
+  description: String
   isOpen: Boolean!
   isVisible: Boolean!
+  status: String
+  startAt: String
+  endAt: String
   createdAt: String!
-  dueDate: String!
 }
 
 type Product {
   id: ID!
+  sku: String!
   name: String!
-  description: String!
-  image: String!
+  description: String
+  images: [String!]!
   createdAt: String!
 }
 
@@ -28,15 +33,72 @@ type SprintProduct {
   id: ID!
   sprintId: ID!
   product: Product!
-  variant: ProductVariant!
-  price: Float!
-  discount: Float!
+  variant: ProductVariant
+  priceCents: Int!
+  listPriceCents: Int
+  discountCents: Int
+  stock: Int
+}
+
+type Customer {
+  id: ID!
+  name: String!
+  email: String!
+  metadata: String
+  createdAt: String!
+}
+
+type SprintContractItem {
+  id: ID!
+  sprintProductId: ID!
+  product: Product!
+  quantity: Int!
+  priceCents: Int!
+  discountCents: Int
+  subtotalCents: Int!
+  variant: ProductVariant
+}
+
+type SprintContract {
+  id: ID!
+  orderId: String!
+  sprintId: ID!
+  customer: Customer!
+  totalCents: Int!
+  notes: String
+  requestStatus: String!
+  paymentStatus: String!
+  items: [SprintContractItem!]!
+  createdAt: String!
+}
+
+input OrderItemInput {
+  sprintProductId: ID!
+  quantity: Int!
+  variant: ProductVariant
+}
+
+input PlaceOrderInput {
+  sprintId: ID!
+  customerId: ID!
+  items: [OrderItemInput!]!
+  notes: String
+}
+
+type PlaceOrderPayload {
+  contract: SprintContract!
 }
 
 type Query {
-  hello: String,
-  sprints: [Sprint!]!,
-  sprint(token: String!): Sprint,
-  products: [Product!]!,
-  sprintProducts(token: String!): [SprintProduct!]!
+  health: String
+  sprints(isVisible: Boolean, isOpen: Boolean): [Sprint!]!
+  sprint(token: String!): Sprint
+  products: [Product!]!
+  sprintProducts(sprintId: ID!): [SprintProduct!]!
+  contracts(customerId: ID!): [SprintContract!]!
+  contract(orderId: String!): SprintContract
+}
+
+type Mutation {
+  placeOrder(input: PlaceOrderInput!): PlaceOrderPayload!
 }

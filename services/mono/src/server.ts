@@ -10,4 +10,7 @@ const schema = createSchema({
 export const yoga = createYoga({
   schema,
   graphqlEndpoint: "/",
+  graphql: {
+    allowBatchedHttpRequests: false,
+  }
 });
