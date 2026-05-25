@@ -10,6 +10,7 @@ use App\Controllers\DbTestController;
 use App\Controllers\ErrorController;
 
 use App\Controllers\Admin\Api\AuthController;
+use App\Controllers\Admin\Api\ProductsController;
 use App\Controllers\Admin\Api\SprintsController;
 
 use App\Core\Middleware\CsrfMiddleware;
@@ -38,6 +39,18 @@ $router->post('/api/admin/sprints', [SprintsController::class, 'store']);
 $router->get('/api/admin/sprints/:id', [SprintsController::class, 'show']);
 $router->put('/api/admin/sprints/:id', [SprintsController::class, 'update']);
 $router->delete('/api/admin/sprints/:id', [SprintsController::class, 'destroy']);
+
+/*
+|-------------------------------------------------
+| Admin Products API
+|-------------------------------------------------
+*/
+$router->get('/api/admin/products', [ProductsController::class, 'index']);
+$router->post('/api/admin/products', [ProductsController::class, 'store']);
+
+$router->get('/api/admin/products/:id', [ProductsController::class, 'show']);
+$router->put('/api/admin/products/:id', [ProductsController::class, 'update']);
+$router->delete('/api/admin/products/:id', [ProductsController::class, 'destroy']);
 
 /*
 |----------------------------------------------------------

@@ -48,6 +48,16 @@ $router->get('/admin/products', function () {
   (new \App\Controllers\Admin\ProductsController())->index();
 });
 
+$router->get('/admin/products/new', function () {
+  AuthMiddleware::handle();
+  (new \App\Controllers\Admin\ProductsController())->createForm();
+});
+
+$router->get('/admin/products/:id', function (array $params) {
+  AuthMiddleware::handle();
+  (new \App\Controllers\Admin\ProductsController())->show($params);
+});
+
 $router->get('/admin/sprint-products', function () {
   AuthMiddleware::handle();
   (new \App\Controllers\Admin\SprintProductsController())->index();

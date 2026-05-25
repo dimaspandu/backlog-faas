@@ -14,9 +14,9 @@
     <small>Manage sprint periods, visibility and status</small>
   </a>
 
-  <a href="/admin/products" class="dashboard-cards__card dashboard-cards__card--disabled">
+  <a href="/admin/products" class="dashboard-cards__card">
     <strong>📦 Products</strong><br>
-    <small>Product catalog (coming soon)</small>
+    <small>Manage the product catalog</small>
   </a>
 
   <a href="/admin/sprint-products" class="dashboard-cards__card dashboard-cards__card--disabled">

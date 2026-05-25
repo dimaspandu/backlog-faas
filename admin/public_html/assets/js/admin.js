@@ -112,3 +112,91 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+/* ========================================
+   Reusable Product Edit Modal
+   ======================================== */
+
+window.openProductEditModal = async function(id) {
+  const modal = document.getElementById('product-edit-modal');
+  const result = document.getElementById('product-edit-result');
+  if (!modal || !result) {
+    return;
+  }
+
+  modal.style.display = 'flex';
+  result.textContent = 'Loading...';
+
+  try {
+    const res = await fetch(`/api/admin/products/${id}`);
+    const json = await res.json();
+    if (!json.success || !json.data) {
+      result.textContent = json.error || 'Failed to load product.';
+      return;
+    }
+
+    const product = json.data;
+    document.getElementById('product-edit-id').value = product.id;
+    document.getElementById('product-edit-sku').value = product.sku || '';
+    document.getElementById('product-edit-name').value = product.name || '';
+    document.getElementById('product-edit-description').value = product.description || '';
+    document.getElementById('product-edit-images').value = product.images || '';
+    result.textContent = '';
+  } catch (err) {
+    result.textContent = 'Error loading product.';
+  }
+};
+
+window.closeProductEditModal = function() {
+  const modal = document.getElementById('product-edit-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('product-edit-form');
+  if (!form) {
+    return;
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('product-edit-id').value;
+    const result = document.getElementById('product-edit-result');
+    const payload = {
+      sku: this.sku.value,
+      name: this.name.value,
+      description: this.description.value,
+      images: this.images.value
+    };
+
+    result.textContent = 'Saving...';
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+
+      if (!json.success) {
+        result.textContent = json.error || 'Update failed.';
+        return;
+      }
+
+      result.textContent = json.message || 'Product updated.';
+      setTimeout(() => {
+        window.closeProductEditModal();
+        if (typeof fetchProducts === 'function') {
+          fetchProducts();
+        } else {
+          window.location.reload();
+        }
+      }, 600);
+    } catch (err) {
+      result.textContent = 'Network error.';
+    }
+  });
+});
