@@ -185,7 +185,22 @@ async function openProductVariantModal(id = null) {
     document.getElementById('product-variant-id').value = variant.id;
     document.getElementById('product-variant-sku').value = variant.sku || '';
     document.getElementById('product-variant-name').value = variant.name || '';
-    document.getElementById('product-variant-attributes').value = variant.attributes || '';
+    // populate attributes: support old textarea and new key/value inputs
+    const attrsContainer = document.getElementById('product-variant-attributes-container');
+    attrsContainer.innerHTML = '';
+    let attrs = [];
+    try {
+      attrs = variant.attributes ? (Array.isArray(variant.attributes) ? variant.attributes : JSON.parse(variant.attributes)) : [];
+    } catch (e) {
+      attrs = [];
+    }
+
+    if (attrs.length === 0) {
+      addVariantAttributeInput();
+    } else {
+      attrs.forEach(a => addVariantAttributeInput(a.name ?? a.key ?? '', a.value ?? a.val ?? ''));
+    }
+
     result.textContent = '';
   } catch (err) {
     result.textContent = 'Network error.';
@@ -202,11 +217,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const id = document.getElementById('product-variant-id').value;
     const result = document.getElementById('product-variant-result');
+
+    // collect attributes from key/value inputs
+    const attrKeys = Array.from(document.querySelectorAll('.variant-attr-key'));
+    const attrValues = Array.from(document.querySelectorAll('.variant-attr-value'));
+    const attributes = [];
+    for (let i = 0; i < Math.max(attrKeys.length, attrValues.length); i++) {
+      const k = (attrKeys[i] && attrKeys[i].value.trim()) || '';
+      const v = (attrValues[i] && attrValues[i].value.trim()) || '';
+      if (k === '' && v === '') continue;
+      attributes.push({ name: k, value: v });
+    }
+
     const payload = {
       sku: this.sku.value,
       name: this.name.value,
-      attributes: this.attributes.value
+      attributes: attributes
     };
+
     const url = id
       ? `/api/admin/products/${productId}/variants/${id}`
       : `/api/admin/products/${productId}/variants`;
