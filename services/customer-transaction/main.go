@@ -3,8 +3,10 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 
@@ -31,10 +33,23 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8889", r))
 }
 
-// mustConnectDB opens and verifies the MySQL connection.
-// TODO: move connection string to environment variable / config in production.
+// getEnv returns the value of the environment variable or the fallback.
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
+// mustConnectDB opens and verifies the MySQL connection using environment variables.
 func mustConnectDB() *sql.DB {
-	dsn := "root:@(127.0.0.1:3306)/backlog_faas?parseTime=true"
+	host := getEnv("DB_HOST", "127.0.0.1")
+	port := getEnv("DB_PORT", "3306")
+	user := getEnv("DB_USER", "root")
+	pass := getEnv("DB_PASSWORD", "")
+	name := getEnv("DB_NAME", "backlog_faas")
+
+	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", user, pass, host, port, name)
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
