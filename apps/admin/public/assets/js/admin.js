@@ -157,6 +157,21 @@ window.openProductEditModal = async function(id) {
       } catch (e) {
         imgs = [];
       }
+      // helper: append global add button
+      const appendAddButton = () => {
+        const ctrl = document.createElement('div');
+        ctrl.style.display = 'flex';
+        ctrl.style.gap = '8px';
+        ctrl.style.marginTop = '6px';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn';
+        btn.textContent = '+';
+        btn.onclick = () => addProductEditImageInput();
+        ctrl.appendChild(btn);
+        container.appendChild(ctrl);
+      };
+
       if (imgs.length === 0) {
         if (typeof addProductEditImageInput === 'function') {
           addProductEditImageInput();
@@ -168,6 +183,7 @@ window.openProductEditModal = async function(id) {
           wrapper.innerHTML = '<input class="form-group__input image-url-input" name="image_urls[]" placeholder="https://example.com/image.jpg"><button type="button" class="btn" onclick="this.parentNode.remove()">-</button>';
           container.appendChild(wrapper);
         }
+        appendAddButton();
       } else {
         imgs.forEach(url => {
           if (typeof addProductEditImageInput === 'function') {
@@ -181,6 +197,7 @@ window.openProductEditModal = async function(id) {
             container.appendChild(wrapper);
           }
         });
+        appendAddButton();
       }
     }
     result.textContent = '';
