@@ -10,7 +10,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Connect opens and verifies a MySQL connection using the provided config.
 func Connect(cfg config.Config) *sql.DB {
 	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true",
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)

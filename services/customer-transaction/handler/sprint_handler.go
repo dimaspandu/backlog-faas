@@ -11,22 +11,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// SprintHandler holds dependencies for sprint-related handlers.
 type SprintHandler struct {
 	DB *sql.DB
 }
 
-// NewSprintHandler creates a new SprintHandler.
 func NewSprintHandler(db *sql.DB) *SprintHandler {
 	return &SprintHandler{DB: db}
 }
 
-// RegisterRoutes registers all sprint routes.
 func (h *SprintHandler) RegisterRoutes(r *mux.Router) {
 	r.HandleFunc("/sprints", h.ListVisibleSprints).Methods("GET")
 }
 
-// ListVisibleSprints returns all visible sprints.
 func (h *SprintHandler) ListVisibleSprints(w http.ResponseWriter, r *http.Request) {
 	sprints, err := fetchVisibleSprints(h.DB)
 	if err != nil {
@@ -41,7 +37,6 @@ func (h *SprintHandler) ListVisibleSprints(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// fetchVisibleSprints queries visible sprints from the database.
 func fetchVisibleSprints(db *sql.DB) ([]model.Sprint, error) {
 	query := `
 		SELECT token, name, description, is_open 

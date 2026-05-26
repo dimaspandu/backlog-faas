@@ -4,7 +4,6 @@ import (
 	"os"
 )
 
-// Config holds all configuration loaded from environment variables.
 type Config struct {
 	DBHost     string
 	DBPort     string
@@ -15,7 +14,6 @@ type Config struct {
 	ServerPort string
 }
 
-// Load reads configuration from environment variables with sensible defaults.
 func Load() Config {
 	return Config{
 		DBHost:     getEnv("DB_HOST", "127.0.0.1"),
