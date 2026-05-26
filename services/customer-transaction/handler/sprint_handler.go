@@ -16,6 +16,13 @@ type SprintHandler struct {
 	DB *sql.DB
 }
 
+type Pagination struct {
+	Page       int `json:"page"`
+	PerPage    int `json:"per_page"`
+	Total      int `json:"total"`
+	TotalPages int `json:"total_pages"`
+}
+
 func NewSprintHandler(db *sql.DB) *SprintHandler {
 	return &SprintHandler{DB: db}
 }
@@ -72,7 +79,14 @@ func (h *SprintHandler) GetSprintDetail(w http.ResponseWriter, r *http.Request) 
 
 	sprint, err := db.GetOpenSprintByToken(h.DB, token)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"error": map[string]string{
+				"code":    "INTERNAL_ERROR",
+				"message": "Internal server error",
+			},
+		})
 		return
 	}
 
