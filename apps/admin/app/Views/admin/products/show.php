@@ -201,6 +201,24 @@ async function openProductVariantModal(id = null) {
       attrs.forEach(a => addVariantAttributeInput(a.name ?? a.key ?? '', a.value ?? a.val ?? ''));
     }
 
+    // ensure there's a global + control to add more attribute rows
+    const attrContainer = document.getElementById('product-variant-attributes-container');
+    const existingAdd = attrContainer.querySelector('.variant-add-control');
+    if (!existingAdd) {
+      const ctrl = document.createElement('div');
+      ctrl.className = 'variant-add-control';
+      ctrl.style.display = 'flex';
+      ctrl.style.gap = '8px';
+      ctrl.style.marginTop = '6px';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn';
+      btn.textContent = '+';
+      btn.onclick = () => addVariantAttributeInput();
+      ctrl.appendChild(btn);
+      attrContainer.appendChild(ctrl);
+    }
+
     result.textContent = '';
   } catch (err) {
     result.textContent = 'Network error.';
