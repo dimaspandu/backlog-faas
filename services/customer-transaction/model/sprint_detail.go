@@ -2,9 +2,13 @@ package model
 
 import "encoding/json"
 
-type SprintDetailResponse struct {
+type SprintDetailData struct {
 	Sprint   SprintPublic    `json:"sprint"`
 	Products []SprintProduct `json:"products"`
+}
+
+type SprintDetailResponse struct {
+	Data SprintDetailData `json:"data"`
 }
 
 type SprintPublic struct {

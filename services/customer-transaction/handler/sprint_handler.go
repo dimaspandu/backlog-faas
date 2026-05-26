@@ -25,17 +25,7 @@ func (h *SprintHandler) RegisterRoutes(r *mux.Router) {
 	r.HandleFunc("/sprints/{token}", h.GetSprintDetail).Methods("GET")
 }
 
-	type PaginatedSprintsResponse struct {
-		Data       []model.Sprint `json:"data"`
-		Pagination Pagination     `json:"pagination"`
-	}
 
-type Pagination struct {
-	Page       int `json:"page"`
-	PerPage    int `json:"per_page"`
-	Total      int `json:"total"`
-	TotalPages int `json:"total_pages"`
-}
 
 func (h *SprintHandler) ListVisibleSprints(w http.ResponseWriter, r *http.Request) {
 	page := parsePositiveInt(r.URL.Query().Get("page"), 1)
@@ -48,24 +38,31 @@ func (h *SprintHandler) ListVisibleSprints(w http.ResponseWriter, r *http.Reques
 	sprints, total, err := db.FetchVisibleSprints(h.DB, page, perPage)
 	if err != nil {
 		log.Printf("error fetching sprints: %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"error": map[string]string{
+				"code":    "INTERNAL_ERROR",
+				"message": "Internal server error",
+			},
+		})
 		return
 	}
 
 	totalPages := (total + perPage - 1) / perPage
 
-	response := PaginatedSprintsResponse{
-		Data: sprints,
-		Pagination: Pagination{
-			Page:       page,
-			PerPage:    perPage,
-			Total:      total,
-			TotalPages: totalPages,
-		},
-	}
-
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
+		"data": sprints,
+		"meta": map[string]interface{}{
+			"pagination": Pagination{
+				Page:       page,
+				PerPage:    perPage,
+				Total:      total,
+				TotalPages: totalPages,
+			},
+		},
+	}); err != nil {
 		log.Printf("error encoding response: %v", err)
 	}
 }
@@ -82,26 +79,40 @@ func (h *SprintHandler) GetSprintDetail(w http.ResponseWriter, r *http.Request) 
 	if sprint == nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]string{"error": "sprint_not_available"})
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"error": map[string]string{
+				"code":    "SPRINT_NOT_AVAILABLE",
+				"message": "Sprint is not open or does not exist",
+			},
+		})
 		return
 	}
 
 	products, err := db.GetSprintProductsByToken(h.DB, token)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"error": map[string]string{
+				"code":    "INTERNAL_ERROR",
+				"message": "Internal server error",
+			},
+		})
 		return
 	}
 
 	response := model.SprintDetailResponse{
-		Sprint:   *sprint,
-		Products: products,
+		Data: model.SprintDetailData{
+			Sprint:   *sprint,
+			Products: products,
+		},
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
-	func parsePositiveInt(value string, defaultValue int) int {
+func parsePositiveInt(value string, defaultValue int) int {
 	if value == "" {
 		return defaultValue
 	}
