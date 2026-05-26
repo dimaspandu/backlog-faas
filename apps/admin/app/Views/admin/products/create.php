@@ -99,4 +99,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-</script>"}]}``` Sorry need correct JSON for edit call. I'll call functions.edit with proper params. (In analysis) I'll now call the tool. (Switch to commentary)
+</script>
