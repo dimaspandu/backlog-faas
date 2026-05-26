@@ -16,6 +16,12 @@ Monorepo for the backend services powering backlog.deduksi.com.
 
 - **services/transaction/** — Transaction/order service (Go)
 
+- **services/customer-transaction/** — Public customer-facing transaction service (Go)
+  - Browse active sprints and their available products
+  - Place orders from sprint offerings (creates `sprint_contracts` + `sprint_contract_items`)
+  - Automatic customer creation on first purchase (name, contact, email)
+  - Standardized REST responses using `{ data, meta }` envelope pattern
+
 ## Getting Started (Admin)
 
 1. Copy `.env.example` → `.env` in `admin/`
@@ -36,9 +42,17 @@ Monorepo for the backend services powering backlog.deduksi.com.
 
 ## Project Status (2026)
 
-The admin panel has been actively developed with full CRUD for:
-- Sprints
-- Products + Variants
-- Sprint Products (offerings with pricing/stock)
+### Admin Panel
+- Full CRUD for Sprints, Products, Product Variants, and Sprint Products
+- Cleaned up from boilerplate (removed unused controllers/routes)
 
-Boilerplate example routes and unused controllers have been removed for a cleaner codebase.
+### Customer Transaction Service (`services/customer-transaction`)
+- New public service for customer ordering flow
+- Standardized API response format (`{ data, meta }` envelope)
+- Pagination support on sprint listing
+- Clean architecture (config / db / handler / model separation)
+- Foundation ready for customer order creation (`sprint_contracts` + `sprint_contract_items`)
+
+### Documentation
+- Added detailed README for customer-transaction service
+- Established consistent API response standards across services
