@@ -78,6 +78,9 @@
   margin-top: 12px;
 }
 
+</style>
+
+<script>
 function addProductEditImageInput(value = '') {
   const container = document.getElementById('product-edit-images-container');
   const wrapper = document.createElement('div');
@@ -92,7 +95,6 @@ function addProductEditImageInput(value = '') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ensure at least one input exists
   if (document.querySelectorAll('#product-edit-images-container .image-url-input').length === 0) {
     addProductEditImageInput();
   }
@@ -137,5 +139,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
-</style>
+</script>
