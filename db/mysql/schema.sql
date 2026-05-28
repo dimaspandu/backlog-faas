@@ -47,29 +47,31 @@ CREATE TABLE `product_variants` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `sprint_products` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `sprint_id` BIGINT UNSIGNED NOT NULL,
-  `product_id` BIGINT UNSIGNED NOT NULL,
-  `product_variant_id` BIGINT UNSIGNED DEFAULT NULL,
-  `sku` VARCHAR(128) NULL,
-  `price_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  `list_price_cents` BIGINT UNSIGNED DEFAULT 0,
-  `discount_cents` BIGINT UNSIGNED DEFAULT 0,
-  `stock` INT UNSIGNED DEFAULT 0,
-  `reserved_quantity` INT UNSIGNED DEFAULT 0,
-  `stock_sold` INT UNSIGNED DEFAULT 0,
-  `variant` JSON DEFAULT NULL,
-  `status` ENUM('ACTIVE','INACTIVE','DELETED') NOT NULL DEFAULT 'ACTIVE',
-  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY `u_sprint_product_variant` (`sprint_id`,`product_id`,`sku`),
-  INDEX (`sprint_id`),
-  INDEX (`product_variant_id`),
-  INDEX `idx_product_id` (`product_id`),
-  INDEX (`status`),
-  CONSTRAINT `fk_sprint_products_sprint` FOREIGN KEY (`sprint_id`) REFERENCES `sprints` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_sprint_products_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_sprint_products_variant` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variants` (`id`) ON DELETE SET NULL
+   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   `sprint_id` BIGINT UNSIGNED NOT NULL,
+   `product_id` BIGINT UNSIGNED NOT NULL,
+   `product_variant_id` BIGINT UNSIGNED DEFAULT NULL,
+   `sku` VARCHAR(128) NULL,
+   `price_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+   `list_price_cents` BIGINT UNSIGNED DEFAULT 0,
+   `discount_cents` BIGINT UNSIGNED DEFAULT 0,
+   `stock` INT UNSIGNED DEFAULT 0,
+   `reserved_quantity` INT UNSIGNED DEFAULT 0,
+   `stock_sold` INT UNSIGNED DEFAULT 0,
+   `quota_total` INT UNSIGNED NOT NULL DEFAULT 0,
+   `quota_used` INT UNSIGNED NOT NULL DEFAULT 0,
+   `variant` JSON DEFAULT NULL,
+   `status` ENUM('ACTIVE','INACTIVE','DELETED') NOT NULL DEFAULT 'ACTIVE',
+   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   UNIQUE KEY `u_sprint_product_variant` (`sprint_id`,`product_id`,`sku`),
+   INDEX (`sprint_id`),
+   INDEX (`product_variant_id`),
+   INDEX `idx_product_id` (`product_id`),
+   INDEX (`status`),
+   CONSTRAINT `fk_sprint_products_sprint` FOREIGN KEY (`sprint_id`) REFERENCES `sprints` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `fk_sprint_products_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `fk_sprint_products_variant` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variants` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `customers` (
@@ -104,22 +106,42 @@ CREATE TABLE `sprint_contracts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `sprint_contract_items` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `contract_id` BIGINT UNSIGNED NOT NULL,
-  `sprint_product_id` BIGINT UNSIGNED NOT NULL,
-  `product_id` BIGINT UNSIGNED NOT NULL,
-  `quantity` INT UNSIGNED NOT NULL DEFAULT 1,
-  `price_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  `discount_cents` BIGINT UNSIGNED DEFAULT 0,
-  `subtotal_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  `variant` JSON DEFAULT NULL,
-  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX (`contract_id`),
-  INDEX `idx_sprint_product_id` (`sprint_product_id`),
-  CONSTRAINT `fk_items_contract` FOREIGN KEY (`contract_id`) REFERENCES `sprint_contracts` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_items_sprint_product` FOREIGN KEY (`sprint_product_id`) REFERENCES `sprint_products` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_items_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT
+   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   `contract_id` BIGINT UNSIGNED NOT NULL,
+   `sprint_product_id` BIGINT UNSIGNED NOT NULL,
+   `product_id` BIGINT UNSIGNED NOT NULL,
+   `quantity` INT UNSIGNED NOT NULL DEFAULT 1,
+   `price_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+   `discount_cents` BIGINT UNSIGNED DEFAULT 0,
+   `subtotal_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+   `variant` JSON DEFAULT NULL,
+   `addons` JSON DEFAULT NULL,
+   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   INDEX (`contract_id`),
+   INDEX `idx_sprint_product_id` (`sprint_product_id`),
+   CONSTRAINT `fk_items_contract` FOREIGN KEY (`contract_id`) REFERENCES `sprint_contracts` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `fk_items_sprint_product` FOREIGN KEY (`sprint_product_id`) REFERENCES `sprint_products` (`id`) ON DELETE RESTRICT,
+   CONSTRAINT `fk_items_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `addon_types` (
+   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   `name` VARCHAR(50) NOT NULL UNIQUE,
+   `description` VARCHAR(255),
+   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `addon_options` (
+   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   `addon_type_id` BIGINT UNSIGNED NOT NULL,
+   `label` VARCHAR(50) NOT NULL,
+   `price_cents` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+   `is_default` TINYINT(1) NOT NULL DEFAULT 0,
+   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   FOREIGN KEY (addon_type_id) REFERENCES addon_types(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `migrations` (
