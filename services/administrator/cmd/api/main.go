@@ -1,13 +1,12 @@
 package main
 
 import (
+	"bcsaas-administrator-service/internal/config"
+	"bcsaas-administrator-service/internal/db"
+	"bcsaas-administrator-service/internal/handlers"
 	"log"
 	"net/http"
 	"time"
-
-	"bcsaas-customer-transaction-service/internal/config"
-	"bcsaas-customer-transaction-service/internal/db"
-	"bcsaas-customer-transaction-service/internal/handlers"
 
 	corsHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -27,21 +26,18 @@ func main() {
 	h := handlers.New(db)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/sprints", h.SprintList).Methods(http.MethodGet)
-	r.HandleFunc("/sprints/{token}", h.SprintTokenValidation(h.SprintShow)).Methods(http.MethodGet)
-	r.HandleFunc("/sprints/{token}/contracts", h.SprintTokenValidation(h.CreateSprintContract)).Methods(http.MethodPost)
-	r.HandleFunc("/sprints/{token}/contracts", h.SprintTokenValidation(h.SprintContractList)).Methods(http.MethodGet)
-	r.HandleFunc("/sprints/{token}/contracts/{contractNumber}", h.SprintTokenValidation(h.SprintContractShow)).Methods(http.MethodGet)
+	r.HandleFunc("/sessions", h.CreateSession).Methods(http.MethodPost)
+	r.HandleFunc("/sprints", h.SessionValidation(h.SprintList)).Methods(http.MethodGet)
 
 	addr := ":" + env.ServerPort
-
-	log.Println("server running at " + addr)
 
 	handlerWithCORS := corsHandlers.CORS(
 		corsHandlers.AllowedOrigins(env.CORSAllowedOrigins),
 		corsHandlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete}),
 		corsHandlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
+
+	log.Println("server running at " + addr)
 
 	srv := &http.Server{
 		Addr:         addr,
