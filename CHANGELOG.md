@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Root `README.md` updated to reflect current monorepo state and recent development on customer transaction capabilities
 - Improved documentation around API design conventions
+- `db/mysql/schema.sql` cleaned up - removed all INSERT seed statements, reformatted for readability
 
 ### Removed
 - Various boilerplate code and unused controllers from the admin panel (previous work)

@@ -4,55 +4,78 @@ Monorepo for the backend services powering backlog.deduksi.com.
 
 ## Architecture
 
-- **admin/** — PHP admin panel (modernized)
-  - Sprint, Product, Product Variant, and Sprint Product (offering) management
-  - RESTful API under `/api/admin/*`
-  - Soft deletes, status workflows, and secure session-based auth
-  - Tests: `admin/tests/` (run via `php tests/run.php`)
+- **db/mysql/** — Database schema (MySQL/MariaDB)
+  - `schema.sql` — Clean schema without seed data
+  - Tables: `inventory`, `products`, `product_recipes`, `sprints`, `sprint_product_offerings`, `customers`, `sprint_contracts`, `sprint_contract_orders`, `admins`, `admin_sessions`
 
-- **db/mysql/** — Database schema and incremental migrations
+- **services/administrator/** — Administrator service (Go)
+  - Sprint management API
+  - Port: 8799
 
-- **services/mono/** — GraphQL service (Node.js/TypeScript) for public sprint data
+- **services/backoffice/** — Backoffice service (Go)
+  - Admin authentication and management
+  - Port: 8699
 
-- **services/transaction/** — Transaction/order service (Go)
+- **services/customer-transaction/** — Customer-facing transaction service (Go)
+  - Browse active sprints and available products
+  - Place orders from sprint offerings (creates `sprint_contracts` + `sprint_contract_orders`)
+  - Automatic customer creation on first purchase
+  - Standardized REST responses (`{ data, meta }` envelope)
+  - Port: 8899
 
-- **services/customer-transaction/** — Public customer-facing transaction service (Go)
-  - Browse active sprints and their available products
-  - Place orders from sprint offerings (creates `sprint_contracts` + `sprint_contract_items`)
-  - Automatic customer creation on first purchase (name, contact, email)
-  - Standardized REST responses using `{ data, meta }` envelope pattern
+## Getting Started
 
-## Getting Started (Admin)
+### Database Setup
 
-1. Copy `.env.example` → `.env` in `admin/`
-2. Configure database credentials (all via environment variables)
-3. Run the admin locally (typically via `php -S` or Apache/Nginx pointing to `public/`)
-4. Run tests:
-   ```bash
-   cd admin
-   php tests/run.php
-   ```
+Import the schema to MySQL/MariaDB:
+
+```sql
+mysql -u root -p < db/mysql/schema.sql
+```
+
+### Administrator Service
+
+```bash
+cd services/administrator
+cp .env.example .env
+# Configure DB_NAME in .env
+go run cmd/api/main.go
+```
+
+### Backoffice Service
+
+```bash
+cd services/backoffice
+cp .env.example .env
+# Configure DB_NAME in .env
+go run cmd/api/main.go
+```
+
+### Customer Transaction Service
+
+```bash
+cd services/customer-transaction
+cp .env.example .env
+# Configure DB_NAME in .env
+go run main.go
+```
+
+## Environment Variables
+
+All services use the same database configuration pattern:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SERVER_PORT` | HTTP server port | Service-specific |
+| `DB_HOST` | Database host | 127.0.0.1 |
+| `DB_PORT` | Database port | 3306 |
+| `DB_USER` | Database user | root |
+| `DB_PASSWORD` | Database password | (empty) |
+| `DB_NAME` | Database name | bcsaas |
 
 ## Key Conventions
 
 - Conventional commits (`feat:`, `fix:`, `chore:`)
-- Explicit middleware (no magic pipelines)
 - Soft deletes via `status` columns
+- Session-based authentication for admin services
 - SKU resolution priority in sprint offerings: explicit → variant → product
-
-## Project Status (2026)
-
-### Admin Panel
-- Full CRUD for Sprints, Products, Product Variants, and Sprint Products
-- Cleaned up from boilerplate (removed unused controllers/routes)
-
-### Customer Transaction Service (`services/customer-transaction`)
-- New public service for customer ordering flow
-- Standardized API response format (`{ data, meta }` envelope)
-- Pagination support on sprint listing
-- Clean architecture (config / db / handler / model separation)
-- Foundation ready for customer order creation (`sprint_contracts` + `sprint_contract_items`)
-
-### Documentation
-- Added detailed README for customer-transaction service
-- Established consistent API response standards across services
