@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Public endpoints for browsing sprints and sprint products
   - Standardized REST response format using `{ "data", "meta" }` envelope
   - Pagination support for sprint listing
-  - Clean architecture structure (config, db, handler, model)
+  - Clean architecture structure (config, db, domain, handlers)
 - Detailed `README.md` for the customer-transaction service
 - Consistent error response format across endpoints
 
@@ -30,8 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial monorepo structure
 - Admin panel (PHP) with basic sprint and product management
 - Database schema and migrations
-- `services/mono` (GraphQL service)
-- `services/transaction` (Go order service)
+- `services/mono` (REST service)
+- `services/administrator` (Go admin service)
+- `services/backoffice` (Go contract processing service)
 
 [Unreleased]: https://github.com/your-org/backlog-faas/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/your-org/backlog-faas/releases/tag/v0.1.0

@@ -1,27 +1,32 @@
 # Backlog FaaS
 
-Monorepo for the backend services powering backlog.deduksi.com.
+Backend services engine powering the Backlog Coffee Sprint as a Service (BCSAAS) platform at [https://backlog.deduksi.com/](https://backlog.deduksi.com/).
 
 ## Architecture
 
 - **db/mysql/** — Database schema (MySQL/MariaDB)
   - `schema.sql` — Clean schema without seed data
-  - Tables: `inventory`, `products`, `product_recipes`, `sprints`, `sprint_product_offerings`, `customers`, `sprint_contracts`, `sprint_contract_orders`, `admins`, `admin_sessions`
+  - Tables: `inventory`, `products`, `sprint_product_offerings`, `sprints`, `customers`, `sprint_contracts`, `sprint_contract_orders`, `admins`, `admin_sessions`
 
 - **services/administrator/** — Administrator service (Go)
-  - Sprint management API
+  - Sprint and product management API
+  - Session-based admin authentication
   - Port: 8799
 
 - **services/backoffice/** — Backoffice service (Go)
-  - Admin authentication and management
+  - Contract processing workflow
+  - Session-based admin authentication
   - Port: 8699
 
 - **services/customer-transaction/** — Customer-facing transaction service (Go)
-  - Browse active sprints and available products
-  - Place orders from sprint offerings (creates `sprint_contracts` + `sprint_contract_orders`)
-  - Automatic customer creation on first purchase
+  - Public endpoints for browsing sprints and placing orders
+  - Clean architecture (config, db, domain, handlers)
   - Standardized REST responses (`{ data, meta }` envelope)
   - Port: 8899
+
+- **services/mono/** — Legacy PHP monolith service
+  - REST endpoints for products, sprints, and contracts
+  - Port: 9999 (PHP built-in server)
 
 ## Getting Started
 
@@ -38,8 +43,8 @@ mysql -u root -p < db/mysql/schema.sql
 ```bash
 cd services/administrator
 cp .env.example .env
-# Configure DB_NAME in .env
-go run cmd/api/main.go
+# Configure DB_PASSWORD in .env
+go run ./cmd/api
 ```
 
 ### Backoffice Service
@@ -47,8 +52,8 @@ go run cmd/api/main.go
 ```bash
 cd services/backoffice
 cp .env.example .env
-# Configure DB_NAME in .env
-go run cmd/api/main.go
+# Configure DB_PASSWORD in .env
+go run ./cmd/api
 ```
 
 ### Customer Transaction Service
@@ -56,26 +61,51 @@ go run cmd/api/main.go
 ```bash
 cd services/customer-transaction
 cp .env.example .env
-# Configure DB_NAME in .env
+# Configure DB_PASSWORD in .env
 go run main.go
+```
+
+### Mono Service
+
+```bash
+cd services/mono
+cp .env.example .env
+# Configure DB_PASS in .env
+php -S localhost:9999 -t .
 ```
 
 ## Environment Variables
 
-All services use the same database configuration pattern:
+### Go Services
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SERVER_PORT` | HTTP server port | Service-specific |
+| `SERVER_PORT` / `PORT` | HTTP server port | Service-specific |
 | `DB_HOST` | Database host | 127.0.0.1 |
 | `DB_PORT` | Database port | 3306 |
 | `DB_USER` | Database user | root |
 | `DB_PASSWORD` | Database password | (empty) |
 | `DB_NAME` | Database name | bcsaas |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated allowed origins | http://localhost:4500,https://backlog.deduksi.com |
+
+### Mono Service
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `APP_ENV` | Application environment | development |
+| `APP_DEBUG` | Debug mode | true |
+| `APP_BASE_PATH` | Base path prefix | (empty) |
+| `APP_BASE_URL` | Public base URL | http://localhost:9999 |
+| `DB_HOST` | Database host | 127.0.0.1 |
+| `DB_PORT` | Database port | 3306 |
+| `DB_NAME` | Database name | (empty) |
+| `DB_USER` | Database user | (empty) |
+| `DB_PASS` | Database password | (empty) |
 
 ## Key Conventions
 
 - Conventional commits (`feat:`, `fix:`, `chore:`)
 - Soft deletes via `status` columns
 - Session-based authentication for admin services
-- SKU resolution priority in sprint offerings: explicit → variant → product
+- REST response format: `{ data, meta }` envelope
+- Sprint contract flow: request → payment → fulfillment
