@@ -1,0 +1,32 @@
+# ----------------------------------------------------------------------
+# Enable Rewrite
+# ----------------------------------------------------------------------
+RewriteEngine On
+
+# ----------------------------------------------------------------------
+# Security: block internal directories
+# ----------------------------------------------------------------------
+RewriteRule ^(app|config|db|routes|storage|tests)/ - [F,L]
+
+# ----------------------------------------------------------------------
+# Block sensitive files
+# ----------------------------------------------------------------------
+<FilesMatch "\.(env|log|ini|json|lock|yml|yaml)$">
+  Require all denied
+</FilesMatch>
+
+# ----------------------------------------------------------------------
+# Redirect trailing slashes (except root) to non-trailing slash
+# ----------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^(.+)/$
+RewriteRule ^ %1 [L,R=301]
+
+# ----------------------------------------------------------------------
+# Front Controller
+# ----------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+RewriteRule ^ index.php [L]

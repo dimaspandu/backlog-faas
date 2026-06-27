@@ -32,7 +32,7 @@ func Load() Env {
 		DBPassword: getEnv("DB_PASSWORD", ""),
 		DBName:     getEnv("DB_NAME", "bcsaas"),
 
-		ServerPort:         getEnv("SERVER_PORT", "8899"),
+		ServerPort:         getEnv("PORT", "8899"),
 		CORSAllowedOrigins: splitCSV(originsStr),
 	}
 }

@@ -28,6 +28,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/sessions", h.CreateSession).Methods(http.MethodPost)
 	r.HandleFunc("/sprints", h.SessionValidation(h.SprintList)).Methods(http.MethodGet)
+	r.HandleFunc("/sprints/{token}/contracts/{contractNumber}", h.SessionValidation(h.ProcessingContracts)).Methods(http.MethodPut)
 
 	handlerWithCORS := corsHandlers.CORS(
 		corsHandlers.AllowedOrigins(env.CORSAllowedOrigins),

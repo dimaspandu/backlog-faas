@@ -59,16 +59,6 @@ CREATE TABLE products (
   INDEX idx_products_status (status)
 );
 
-CREATE TABLE product_recipes (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  product_id BIGINT UNSIGNED NOT NULL,
-  inventory_id BIGINT UNSIGNED NOT NULL,
-  qty_required DECIMAL(10,2) NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (product_id) REFERENCES products(id),
-  FOREIGN KEY (inventory_id) REFERENCES inventory(id)
-);
-
 CREATE TABLE sprints (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   token VARCHAR(32) NOT NULL UNIQUE,
@@ -90,13 +80,18 @@ CREATE TABLE sprint_product_offerings (
   sprint_token VARCHAR(32) NOT NULL,
   product_id BIGINT UNSIGNED NOT NULL,
   offer_price_cents BIGINT UNSIGNED NOT NULL,
-  stock_limit INT UNSIGNED NOT NULL,
-  stock_remaining INT UNSIGNED NOT NULL,
-  is_available BOOLEAN DEFAULT TRUE,
+  stock_limit INT UNSIGNED DEFAULT 0,
+  stock_remaining INT UNSIGNED DEFAULT 0,
+  is_available TINYINT(1) DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (sprint_token) REFERENCES sprints(token),
-  FOREIGN KEY (product_id) REFERENCES products(id),
-  UNIQUE KEY uk_sprint_product (sprint_token, product_id)
+  FOREIGN KEY (sprint_token)
+    REFERENCES sprints(token),
+  FOREIGN KEY (product_id)
+    REFERENCES products(id),
+  UNIQUE KEY uk_sprint_product (
+    sprint_token,
+    product_id
+  )
 );
 
 CREATE TABLE customers (
@@ -135,14 +130,16 @@ CREATE TABLE sprint_contracts (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (sprint_token) REFERENCES sprints(token)
+
+  FOREIGN KEY (sprint_token)
+    REFERENCES sprints(token)
 );
 
 CREATE TABLE sprint_contract_orders (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   sprint_contract_id BIGINT UNSIGNED NOT NULL,
   product_id BIGINT UNSIGNED NOT NULL,
-  sugar_level ENUM('NONE','LESS','MODERATE','NORMAL') DEFAULT 'NORMAL',
+  sugar_level ENUM('NONE','LESS','MODERATE','NORMAL') DEFAULT 'NORMAL',  
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (sprint_contract_id) REFERENCES sprint_contracts(id),
@@ -157,7 +154,7 @@ CREATE TABLE admins (
     'administrator',
     'backoffice'
   ) NOT NULL,
-  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  is_active TINYINT(1) DEFAULT 1,
   last_login_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

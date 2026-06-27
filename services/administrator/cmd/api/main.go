@@ -26,6 +26,7 @@ func main() {
 	h := handlers.New(db)
 
 	r := mux.NewRouter()
+	r.HandleFunc("/products", h.ProductList).Methods(http.MethodGet)
 	r.HandleFunc("/sessions", h.CreateSession).Methods(http.MethodPost)
 	r.HandleFunc("/sprints", h.SessionValidation(h.SprintList)).Methods(http.MethodGet)
 
