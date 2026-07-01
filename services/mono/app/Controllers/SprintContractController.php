@@ -93,20 +93,30 @@ final class SprintContractController
     $args = [$token, ...array_keys($uniqueProductIds)];
     $placeholders = implode(',', array_fill(0, count($uniqueProductIds), '?'));
 
-    $priceRow = DB::one("
+    $priceRow = DB::query("
       SELECT
-        COUNT(*) AS cnt,
-        COALESCE(SUM(offer_price_cents), 0) AS total
+        product_id,
+        offer_price_cents
       FROM sprint_product_offerings
       WHERE sprint_token = ? AND product_id IN ($placeholders)
     ", $args);
 
-    $totalProducts = (int)($priceRow['cnt'] ?? 0);
+    $allPrices = [];
+    foreach ($priceRow as $row) {
+      $allPrices[(int)$row['product_id']] = (int)$row['offer_price_cents'];
+    }
+
+    $totalProducts = count($allPrices);
     if ($totalProducts !== count($uniqueProductIds)) {
       return ResponseFactory::badRequest('One or more products are not available in this sprint');
     }
 
-    $totalPriceCents = (int)($priceRow['total'] ?? 0);
+    $totalPriceCents = 0;
+    foreach ($productIds as $productId) {
+      if (isset($allPrices[$productId])) {
+        $totalPriceCents += $allPrices[$productId];
+      }
+    }
     $contractNumber = sprintf('ORD-%d-%03d', (int)(microtime(true) * 1000), random_int(100, 999));
 
     $errorMessage = 'Internal Server Error';

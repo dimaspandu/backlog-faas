@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Account for duplicate products in `totalPriceCents` calculation in contract creation endpoints
+
 ### Added
 - New `services/customer-transaction` service (Go)
   - Public endpoints for browsing sprints and sprint products

@@ -331,7 +331,7 @@ type CreateContractParams struct {
 	Products             []SprintProductRequest
 }
 
-func (r *Repository) ValidateProducts(ctx context.Context, token string, productIDs map[int]struct{}) (int, int, error) {
+func (r *Repository) ValidateProducts(ctx context.Context, token string, productIDs map[int]struct{}) (int, map[int]int, error) {
 	placeholders := make([]string, 0, len(productIDs))
 	args := make([]any, 0, len(productIDs)+1)
 	args = append(args, token)
@@ -342,11 +342,8 @@ func (r *Repository) ValidateProducts(ctx context.Context, token string, product
 
 	query := fmt.Sprintf(`
 		SELECT
-			COUNT(*),
-			COALESCE(
-				SUM(offer_price_cents),
-				0
-			)
+			product_id,
+			offer_price_cents
 		FROM sprint_product_offerings
 		WHERE
 			sprint_token = ?
@@ -354,12 +351,26 @@ func (r *Repository) ValidateProducts(ctx context.Context, token string, product
 			product_id IN (%s)
 	`, strings.Join(placeholders, ","))
 
-	var totalPriceCents int
-	var totalProducts int
-	if err := r.DB.QueryRowContext(ctx, query, args...).Scan(&totalProducts, &totalPriceCents); err != nil {
-		return 0, 0, err
+	rows, err := r.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return 0, nil, err
 	}
-	return totalPriceCents, totalProducts, nil
+	defer rows.Close()
+
+	prices := make(map[int]int)
+	totalProducts := 0
+	for rows.Next() {
+		var productID, offerPriceCents int
+		if err := rows.Scan(&productID, &offerPriceCents); err != nil {
+			return 0, nil, err
+		}
+		prices[productID] = offerPriceCents
+		totalProducts++
+	}
+	if err := rows.Err(); err != nil {
+		return 0, nil, err
+	}
+	return totalProducts, prices, nil
 }
 
 func (r *Repository) CreateContract(ctx context.Context, params *CreateContractParams) (string, error) {

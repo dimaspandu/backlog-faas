@@ -147,12 +147,19 @@ func (u *Usecase) CreateContract(ctx context.Context, sprintMeta *SprintMeta, re
 		return ErrInvalidContact
 	}
 
-	totalPriceCents, totalProducts, err := u.repo.ValidateProducts(ctx, sprintMeta.Token, productIDs)
+	totalProducts, prices, err := u.repo.ValidateProducts(ctx, sprintMeta.Token, productIDs)
 	if err != nil {
 		return err
 	}
 	if totalProducts != len(productIDs) {
 		return ErrProductsNotAvailable
+	}
+
+	totalPriceCents := 0
+	for _, product := range req.Products {
+		if price, ok := prices[product.ID]; ok {
+			totalPriceCents += price
+		}
 	}
 
 	customerAuthProvider := "GUEST"
