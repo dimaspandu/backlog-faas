@@ -1,4 +1,4 @@
-# MongoDB Mono Service
+# Mono Service
 
 A minimal, framework-free PHP API service for the BCSAAS monolith backend. It exposes product, sprint, and sprint contract endpoints used by the frontend and other internal services.
 
